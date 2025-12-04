@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    container_name: porttracker-web
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    restart: unless-stopped

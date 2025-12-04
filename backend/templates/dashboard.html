@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Your Portfolio</h1>
+
+<p>Total value: ${{ "%.2f"|format(total_value) }}</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Shares</th>
+            <th>Price (placeholder)</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in portfolio %}
+        <tr>
+            <td>{{ stock.ticker }}</td>
+            <td>{{ stock.shares }}</td>
+            <td>${{ "%.2f"|format(stock.price) }}</td>
+            <td>${{ "%.2f"|format(stock.value) }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">No stocks yet. <a href="{{ url_for('add_stock') }}">Add one</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

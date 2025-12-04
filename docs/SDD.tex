@@ -1,0 +1,25 @@
+
+\documentclass{article}
+\title{Software Design Document (SDD) \\ PortTracker}
+\begin{document}
+\maketitle
+
+\section{Overview}
+PortTracker is a simple stock portfolio tracker that lets users add stocks, view total value, and track gains or losses using live market data.
+
+\section{Architecture}
+\begin{itemize}
+\item Frontend: HTML/CSS/JavaScript
+\item Backend: Python Flask
+\item Database: SQLite
+\item API: Alpha Vantage for stock data
+\item Deployment: Docker container
+\end{itemize}
+
+\section{Modules}
+Authentication, Portfolio Manager, Data Fetcher, UI Renderer.
+
+\section{Data Flow}
+User → Browser UI → Flask API → Alpha Vantage → Flask → SQLite → UI.
+
+\end{document}
