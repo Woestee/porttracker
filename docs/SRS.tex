@@ -1,19 +1,235 @@
-
 \documentclass{article}
-\title{Software Requirements Specification (SRS) \\ PortTracker}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Software Requirements Specification (SRS) \\
+\large Stock Market Portfolio Tracker}
+\author{
+Dante Fernandez \\
+Marco Lopez \\
+Bryan Valencia \\
+Alexander Woeste
+}
+\date{Snapshot 1}
+
 \begin{document}
 \maketitle
 
-\section{Purpose}
-Define all requirements for PortTracker.
+\section*{Version Table}
+\begin{tabular}{|c|c|c|}
+\hline
+Version & Date & Notes \\
+\hline
+1.0 & Snapshot 1 & First full version of the SRS. \\
+\hline
+\end{tabular}
 
-\section{Functional Requirements}
-Login, add/remove stocks, fetch prices, display gains/losses.
+\newpage
+\tableofcontents
+\newpage
 
-\section{Nonfunctional Requirements}
-Fast, simple UI, secure login, Docker deployment.
+\section{Introduction}
 
-\section{Constraints}
-API limits, SQLite storage.
+\subsection{Purpose}
+This document explains what our Stock Market Portfolio Tracker is supposed to do and what features we plan to include for this snapshot. The goal is to keep our team organized and have a clear idea of what we want the finished version to look like.
+
+\subsection{Intended Audience}
+Our intended audience includes
+\begin{itemize}
+    \item \textbf{Software Developers}  
+    Developers may use this document to understand the technical requirements, planned features, and how the frontend, backend, and database will work together.
+    \item \textbf{Project Managers}  
+    They may check this document to confirm the scope of the project, the goals for this snapshot, and the direction of the system.
+    \item \textbf{Technical Reviewers}  
+    Reviewers may look at this SRS to make sure the system design is clear and that the requirements follow good engineering practices.
+    \item \textbf{Future Developers joining the project}  
+    They may use this document to quickly understand the overall idea of the app and what has already been planned or completed.
+    \item \textbf{General Audience interested in the project}  
+    This includes anyone who wants a basic explanation of what the Stock Market Portfolio Tracker is supposed to do without needing technical knowledge.
+\end{itemize}
+
+\subsection{Overview}
+The Stock Market Portfolio Tracker is a simple web app that lets users keep track of their stocks in one place. Many people have accounts with more than one brokerage, so this tool gives them a single dashboard to check prices, total value, and profit or loss. This document explains the requirements for what we plan to build.
+
+\section{Product Scope}
+The main goal is to build an easy to use platform where users can
+\begin{itemize}
+    \item Create an account
+    \item Add the stocks they own
+    \item Check real time prices
+    \item Track gains and losses
+    \item Set simple alerts
+\end{itemize}
+
+\section{Overall Description}
+
+\subsection{User Classes}
+For this snapshot, we only have one user type.
+
+\textbf{Standard User}
+\begin{itemize}
+    \item Create an account and log in
+    \item Add, edit, or delete stocks
+    \item View real time price data
+    \item Set simple alerts
+\end{itemize}
+
+\subsection{Operating Environment}
+The system will run in the following environment
+\begin{itemize}
+    \item Web browser such as Chrome, Safari, or Firefox
+    \item Frontend built with React
+    \item Backend built with Node and Express
+    \item PostgreSQL database
+    \item External stock price API such as Yahoo Finance or AlphaVantage
+    \item Docker Compose for deployment
+\end{itemize}
+
+\subsection{Dependencies and Assumptions}
+\begin{itemize}
+    \item User has a working internet connection
+    \item Stock price API must be online
+    \item Ticker symbols must be valid
+    \item App depends on correct API keys
+    \item Users should use an updated browser
+\end{itemize}
+
+\subsection{User Stories}
+\begin{itemize}
+    \item As a user, I want to add a stock so I can track it
+    \item As a user, I want to see live price updates so I know my profit or loss
+    \item As a user, I want to edit or delete my stocks when needed
+    \item As a user, I want alerts for large price changes
+    \item As a user, I want a simple dashboard that is easy to read
+\end{itemize}
+
+\section{System Features}
+
+\subsection{Feature One: User Accounts}
+\begin{itemize}
+    \item Create an account
+    \item Log in and log out
+    \item Store the active user session
+\end{itemize}
+
+\subsection{Feature Two: Portfolio Management}
+Users can
+\begin{itemize}
+    \item Add a stock with ticker, share count, and buy price
+    \item Edit an existing holding
+    \item Remove a holding
+\end{itemize}
+
+\subsection{Feature Three: Real Time Price Display}
+\begin{itemize}
+    \item Load the current price when the user opens the dashboard
+    \item Calculate total value and profit or loss
+    \item Refresh data when the user wants
+\end{itemize}
+
+\subsection{Feature Four: Alerts}
+\begin{itemize}
+    \item Set a percentage based alert
+    \item View a notification when the alert triggers
+\end{itemize}
+
+\section{Error Handling and Edge Cases}
+\begin{itemize}
+    \item If the API fails, show a message instead of breaking the dashboard
+    \item Invalid ticker symbols show an error message
+    \item Backend blocks empty or negative share amounts
+    \item If the database goes down, show a cannot connect to server message
+\end{itemize}
+
+\section{External Interface Requirements}
+
+\subsection{User Interface}
+The UI will include
+\begin{itemize}
+    \item Login and Register page
+    \item Dashboard with a table of holdings
+    \item Summary section for total value and profit or loss
+    \item Add stock button
+    \item Alerts panel
+\end{itemize}
+
+\subsection{Software Interfaces}
+\begin{itemize}
+    \item Yahoo Finance or AlphaVantage API
+    \item REST API endpoints with Express
+    \item PostgreSQL connection using the pg library
+\end{itemize}
+
+\section{Non Functional Requirements}
+
+\subsection{Performance Requirements}
+\begin{itemize}
+    \item Dashboard should load within a few seconds
+    \item API requests should feel smooth and responsive
+\end{itemize}
+
+\subsection{Security Requirements}
+\begin{itemize}
+    \item Passwords must be hashed
+    \item No financial account data is stored
+    \item Input validation on both frontend and backend
+    \item API keys cannot be exposed on the frontend
+\end{itemize}
+
+\subsection{Usability Requirements}
+\begin{itemize}
+    \item Interface should be simple to understand
+    \item Colors must be readable
+    \item Layout of the dashboard should stay consistent
+\end{itemize}
+
+\subsection{Reliability and Availability}
+\begin{itemize}
+    \item System should handle API outages
+    \item App should continue running even if a request fails
+    \item System should support multiple users without major slowdown
+\end{itemize}
+
+\section{Out of Scope for Snapshot One}
+These features might be added in the future but are not included in this snapshot
+\begin{itemize}
+    \item Automatic syncing with brokerage accounts
+    \item Email or text alerts
+    \item Advanced analytics
+    \item Charting tools
+    \item Support for multiple currencies
+    \item Stock prediction features
+\end{itemize}
+
+\section{Legal and Ethical Considerations}
+\begin{itemize}
+    \item We are not giving financial advice
+    \item Stock data accuracy depends on the API
+    \item We do not collect sensitive financial information
+    \item Users are responsible for the data they enter
+\end{itemize}
+
+\section{Glossary}
+\begin{itemize}
+    \item API  
+    A service the app uses to get stock prices
+    \item Ticker Symbol  
+    A short code that represents a stock such as AAPL
+    \item Holding  
+    A stock that the user owns
+    \item Profit or Loss  
+    The amount gained or lost from a stock
+    \item Portfolio  
+    All the stocks the user decides to track
+    \item Alert Threshold  
+    The price or percentage that triggers a notification
+\end{itemize}
+
+\section{References}
+\begin{itemize}
+    \item Yahoo Finance API documentation
+    \item AlphaVantage API documentation
+    \item React Express and PostgreSQL documentation
+\end{itemize}
 
 \end{document}

@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
+import db
+import alpha
+from alpha import PriceLookupError
+
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = "dev-secret"
+    app.secret_key = "dev-secret"  # later: pull from env if you want
 
-    # Temporary in-memory "portfolio"
-    portfolio = []
+    # Initialize database
+    db.init_db()
 
     @app.route("/")
     def index():
@@ -13,16 +17,16 @@ def create_app():
 
     @app.route("/dashboard")
     def dashboard():
-        # Calculate total value (for now treat each share as $10)
-        total_value = sum(item["shares"] * item["price"] for item in portfolio)
-        return render_template("dashboard.html",
-                               portfolio=portfolio,
-                               total_value=total_value)
+        portfolio = db.get_portfolio()
+        total_value = sum(item["value"] for item in portfolio)
+        return render_template(
+            "dashboard.html",
+            portfolio=portfolio,
+            total_value=total_value
+        )
 
     @app.route("/add-stock", methods=["GET", "POST"])
     def add_stock():
-        nonlocal portfolio  # modifies the outer list
-
         if request.method == "POST":
             ticker = request.form.get("ticker", "").upper().strip()
             shares_raw = request.form.get("shares", "").strip()
@@ -39,23 +43,27 @@ def create_app():
                 flash("Shares must be a positive integer.")
                 return redirect(url_for("add_stock"))
 
-            # Placeholder: each share = $10.00 for now
-            price = 10.0
-            value = shares * price
+            # Use Alpha Vantage for the real price
+            try:
+                price = alpha.get_latest_price(ticker)
+            except PriceLookupError as e:
+                flash(f"Could not fetch price for {ticker}: {e}")
+                return redirect(url_for("add_stock"))
 
-            portfolio.append({
-                "ticker": ticker,
-                "shares": shares,
-                "price": price,
-                "value": value
-            })
-
-            flash(f"Added {shares} shares of {ticker}.")
+            db.add_holding(ticker, shares, price)
+            flash(f"Added {shares} shares of {ticker} at ${price:.2f}.")
             return redirect(url_for("dashboard"))
 
         return render_template("add_stock.html")
 
+    @app.route("/delete-stock/<int:holding_id>", methods=["POST"])
+    def delete_stock(holding_id):
+        db.delete_holding(holding_id)
+        flash(f"Removed holding #{holding_id}.")
+        return redirect(url_for("dashboard"))
+
     return app
+
 
 if __name__ == "__main__":
     app = create_app()

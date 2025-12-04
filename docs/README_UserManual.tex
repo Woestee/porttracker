@@ -1,19 +1,162 @@
-
 \documentclass{article}
+\usepackage[hidelinks]{hyperref}
+
 \title{README / User Manual \\ PortTracker}
+\author{CS 3338 -- Final Project Team}
+\date{\today}
+
 \begin{document}
 \maketitle
 
 \section{Overview}
-PortTracker helps users track their investments.
+
+PortTracker is a containerized web application that helps users track their stock holdings.
+
+The application is built with:
+\begin{itemize}
+    \item \textbf{Backend:} Python Flask
+    \item \textbf{Database:} SQLite (local \texttt{portfolio.db} file)
+    \item \textbf{Data Source:} Alpha Vantage API for current stock prices
+    \item \textbf{Containerization:} Docker (with \texttt{docker-compose})
+\end{itemize}
+
+Users can:
+\begin{itemize}
+    \item Add stock holdings (ticker + number of shares)
+    \item Automatically fetch the latest price for that ticker
+    \item View a dashboard of all holdings with current value
+    \item Remove holdings from the portfolio
+\end{itemize}
 
 \section{Run Instructions}
-Clone repo, install Docker, build image, run container.
+
+\subsection*{Prerequisites}
+
+\begin{itemize}
+    \item Docker Desktop installed and running
+    \item Git (or the ability to download the repository as a ZIP)
+    \item An Alpha Vantage API key (free tier is sufficient)
+\end{itemize}
+
+\subsection*{Clone the Repository}
+
+\begin{enumerate}
+    \item Open a terminal or command prompt.
+    \item Clone the repository:
+\begin{verbatim}
+git clone https://github.com/Woestee/porttracker.git
+cd porttracker
+\end{verbatim}
+\end{enumerate}
+
+\subsection*{Configure Environment Variables}
+
+PortTracker reads configuration from a \texttt{.env} file in the project root.
+
+\begin{enumerate}
+    \item Create a file named \texttt{.env} in the root of the repository
+    (same level as \texttt{Dockerfile} and \texttt{docker-compose.yml}).
+    \item Add the following content, replacing the API key with your own:
+\begin{verbatim}
+FLASK_SECRET_KEY=dev-secret
+FLASK_APP=app.py
+FLASK_RUN_HOST=0.0.0.0
+PORT=5000
+ALPHA_VANTAGE_API_KEY=YOUR_ALPHA_VANTAGE_KEY_HERE
+\end{verbatim}
+\end{enumerate}
+
+\subsection*{Build and Run with Docker Compose}
+
+From the repository root:
+
+\begin{enumerate}
+    \item Start the application:
+\begin{verbatim}
+docker-compose up
+\end{verbatim}
+    \item After the container starts, open a browser and visit:
+\begin{verbatim}
+http://localhost:5000
+\end{verbatim}
+\end{enumerate}
+
+To stop the application, press \texttt{Ctrl + C} in the terminal running
+\texttt{docker-compose}, or run:
+
+\begin{verbatim}
+docker-compose down
+\end{verbatim}
 
 \section{Usage}
-Login, add stocks, view performance.
+
+The application exposes three main pages:
+
+\begin{itemize}
+    \item \textbf{Home ("/")} -- Simple landing page with navigation links.
+    \item \textbf{Dashboard ("/dashboard")} -- Shows the current portfolio.
+    \item \textbf{Add Stock ("/add-stock")} -- Form for adding new holdings.
+\end{itemize}
+
+\subsection*{Adding a Stock}
+
+\begin{enumerate}
+    \item Click \textbf{Add Stock} in the navigation bar.
+    \item Enter:
+    \begin{itemize}
+        \item \textbf{Ticker:} stock symbol (e.g., \texttt{AAPL}, \texttt{MSFT}).
+        \item \textbf{Shares:} positive integer number of shares.
+    \end{itemize}
+    \item Submit the form.
+    \item The application will:
+    \begin{itemize}
+        \item Validate the input.
+        \item Call the Alpha Vantage API to get the latest price.
+        \item Store the ticker, shares, and price in the SQLite database.
+    \end{itemize}
+\end{enumerate}
+
+If the ticker is invalid or the API call fails, an error message is shown and the holding is not saved.
+
+\subsection*{Viewing the Portfolio Dashboard}
+
+Navigate to \textbf{Dashboard}.
+
+The table displays:
+\begin{itemize}
+    \item Ticker -- Stock symbol.
+    \item Shares -- Number of shares held.
+    \item Price -- Last fetched price from Alpha Vantage.
+    \item Value -- Computed as \texttt{shares * price}.
+    \item Actions -- Buttons to remove holdings.
+\end{itemize}
+
+At the top of the page, the total value of the portfolio is shown as the sum of all holding values.
+
+\subsection*{Removing a Stock}
+
+\begin{enumerate}
+    \item On the Dashboard, find the row for the holding you want to remove.
+    \item Click the \textbf{Remove} button in the Actions column.
+    \item The holding is deleted from the database and the Dashboard is refreshed.
+\end{enumerate}
+
+\subsection*{Notes and Limitations}
+
+\begin{itemize}
+    \item Prices are fetched on add and stored; they are not continuously updated.
+    \item The application is for educational purposes only and is not financial advice.
+    \item All data is stored locally in \texttt{portfolio.db} inside the container's mounted volume.
+\end{itemize}
 
 \section{Jira Link}
-Insert your link.
+
+Our Jira project for this application is available at:
+
+\begin{center}
+\textbf{[Insert Jira project URL here]}
+\end{center}
+
+Replace the placeholder above with the actual Jira link used by the team.
 
 \end{document}

@@ -9,8 +9,9 @@
         <tr>
             <th>Ticker</th>
             <th>Shares</th>
-            <th>Price (placeholder)</th>
+            <th>Price</th>
             <th>Value</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -20,10 +21,19 @@
             <td>{{ stock.shares }}</td>
             <td>${{ "%.2f"|format(stock.price) }}</td>
             <td>${{ "%.2f"|format(stock.value) }}</td>
+            <td>
+                <form action="{{ url_for('delete_stock', holding_id=stock.id) }}"
+                      method="post" style="display:inline;">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="4">No stocks yet. <a href="{{ url_for('add_stock') }}">Add one</a></td>
+            <td colspan="5">
+                No stocks yet.
+                <a href="{{ url_for('add_stock') }}">Add one</a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

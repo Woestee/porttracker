@@ -1,25 +1,297 @@
-
 \documentclass{article}
-\title{Software Design Document (SDD) \\ PortTracker}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\title{Software Design Document (SDD) \\
+\large Stock Market Portfolio Tracker}
+\author{
+Dante Fernandez \\
+Marco Lopez \\
+Bryan Valencia \\
+Alexander Woeste}
+\date{Snapshot 1}
+
 \begin{document}
 \maketitle
 
-\section{Overview}
-PortTracker is a simple stock portfolio tracker that lets users add stocks, view total value, and track gains or losses using live market data.
+\section*{Version Table}
+\begin{tabular}{|c|c|c|}
+\hline
+Version & Date & Notes \\
+\hline
+1.0 & Snapshot 1 & First full draft of the SDD. \\
+\hline
+\end{tabular}
 
-\section{Architecture}
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{Purpose}
+This document explains how our Stock Market Portfolio Tracker is designed behind the scenes. While the SRS describes what the system should do, the SDD focuses on how we plan to build everything. This includes the architecture, the main modules, the database structure, the API routes, the interface design, and the overall workflow of the system.
+
+\subsection{Intended Audience}
+Our intended audience includes
 \begin{itemize}
-\item Frontend: HTML/CSS/JavaScript
-\item Backend: Python Flask
-\item Database: SQLite
-\item API: Alpha Vantage for stock data
-\item Deployment: Docker container
+    \item \textbf{Software Developers}  
+    Developers who need to understand how the system is built and how the different parts of the project connect.
+    \item \textbf{Project Managers}  
+    Managers who want a clear idea of the structure of the system and how the design supports the goals of the project.
+    \item \textbf{Technical Reviewers}  
+    Reviewers who want to confirm that the design follows good engineering practices.
+    \item \textbf{Future Developers joining the project}  
+    Developers who want a quick way to learn how our app is organized and how the backend and frontend work together.
 \end{itemize}
 
-\section{Modules}
-Authentication, Portfolio Manager, Data Fetcher, UI Renderer.
+\subsection{Overview}
+This SDD contains
+\begin{itemize}
+    \item A breakdown of the system architecture
+    \item A description of all major modules
+    \item Database layout and table design
+    \item API design and structure
+    \item User interface layout and pages
+    \item Workflow of requests through the system
+\end{itemize}
 
-\section{Data Flow}
-User → Browser UI → Flask API → Alpha Vantage → Flask → SQLite → UI.
+\section{System Architecture}
+
+\subsection{High Level Overview}
+The system is built as a full stack web application with three main layers
+\begin{itemize}
+    \item \textbf{Frontend}  
+    A React application that handles user input and displays the interface.
+    \item \textbf{Backend}  
+    A Node and Express server that handles requests, validation, authentication, and price lookups.
+    \item \textbf{Database}  
+    A PostgreSQL database where all user accounts, holdings, and alerts are stored.
+\end{itemize}
+
+\subsection{Architecture Diagram Description}
+Below is a simple text diagram that shows how everything connects
+
+\begin{verbatim}
+[User Browser]
+       |
+       v
+[React Frontend]
+       |
+       v
+[Express Backend API]
+       |
+       v
+[PostgreSQL Database]
+
+[External Stock Price API]
+       ^
+       |
+[Backend fetches price data]
+\end{verbatim}
+
+\subsection{Design Rationale}
+We chose this setup because
+\begin{itemize}
+    \item React is great for building interactive dashboards
+    \item Node and Express make it easy to create a fast and simple API
+    \item PostgreSQL works well for structured tables like user holdings
+    \item Docker lets us run all services together without complicated setups
+\end{itemize}
+
+\section{Module Breakdown}
+
+\subsection{Frontend Modules}
+\begin{itemize}
+    \item \textbf{Login and Register Module}  
+    Handles user authentication.
+    \item \textbf{Dashboard Module}  
+    Shows the total portfolio value and summary cards.
+    \item \textbf{Holdings Table Module}  
+    Displays all stocks the user has added.
+    \item \textbf{Add and Edit Holdings Module}  
+    Form for entering or updating stock information.
+    \item \textbf{Alerts Module}  
+    Lets users create and delete price alerts.
+\end{itemize}
+
+\subsection{Backend Modules}
+\begin{itemize}
+    \item \textbf{Auth Controller}  
+    Handles login, register, hashing, and sessions.
+    \item \textbf{Portfolio Controller}  
+    CRUD functions for all holdings.
+    \item \textbf{Price Service}  
+    Fetches real time stock prices from external API.
+    \item \textbf{Alerts Controller}  
+    Stores alert settings and checks when alerts should trigger.
+    \item \textbf{Database Controller}  
+    All queries to PostgreSQL.
+\end{itemize}
+
+\subsection{External API Module}
+\begin{itemize}
+    \item Fetches live market prices
+    \item Confirms whether a ticker is valid
+    \item Handles API errors and rate limits
+\end{itemize}
+
+\section{Database Design}
+
+\subsection{Tables}
+
+\subsubsection{Users Table}
+\begin{itemize}
+    \item id primary key
+    \item username
+    \item email
+    \item hashed password
+\end{itemize}
+
+\subsubsection{Holdings Table}
+\begin{itemize}
+    \item id primary key
+    \item user id foreign key
+    \item symbol
+    \item shares
+    \item buy price
+\end{itemize}
+
+\subsubsection{Alerts Table}
+\begin{itemize}
+    \item id primary key
+    \item user id foreign key
+    \item symbol
+    \item threshold percent
+    \item direction value up or down
+\end{itemize}
+
+\subsection{Database Notes}
+\begin{itemize}
+    \item Every user can store any number of stocks
+    \item Alerts are separated from holdings for flexibility
+    \item Foreign keys make sure data stays connected to the right user
+\end{itemize}
+
+\section{Backend API Design}
+
+\subsection{Auth Routes}
+\begin{itemize}
+    \item POST api register
+    \item POST api login
+\end{itemize}
+
+\subsection{Portfolio Routes}
+\begin{itemize}
+    \item GET api portfolio
+    \item POST api addStock
+    \item PUT api editStock id
+    \item DELETE api deleteStock id
+\end{itemize}
+
+\subsection{Price Route}
+\begin{itemize}
+    \item GET api price symbol
+\end{itemize}
+
+\subsection{Alerts Routes}
+\begin{itemize}
+    \item POST api addAlert
+    \item GET api alerts
+    \item DELETE api deleteAlert id
+\end{itemize}
+
+\section{User Interface and Experience}
+
+\subsection{Main Pages}
+
+\subsubsection{Login Page}
+Contains a simple form for username or email and password.
+
+\subsubsection{Dashboard Page}
+Shows
+\begin{itemize}
+    \item Total portfolio value
+    \item Overall profit or loss
+    \item Quick summary info
+\end{itemize}
+
+\subsubsection{Holdings Table}
+Displays
+\begin{itemize}
+    \item Stock ticker
+    \item Number of shares
+    \item Buy price
+    \item Current price
+    \item Total value
+    \item Profit or loss
+\end{itemize}
+
+\subsubsection{Add and Edit Holdings Form}
+Allows
+\begin{itemize}
+    \item Entering ticker, shares, and buy price
+    \item Editing existing entries
+    \item Deleting entries
+\end{itemize}
+
+\subsubsection{Alerts Page}
+Allows users to
+\begin{itemize}
+    \item Create alerts
+    \item Remove alerts
+    \item View triggered alerts
+\end{itemize}
+
+\section{Workflow Diagram Description}
+This is the general flow for how data moves through the system
+
+\begin{verbatim}
+User opens Dashboard
+React sends request
+Backend checks user session
+Backend pulls data from database
+Backend fetches real time prices
+Backend combines data
+Backend sends final response
+Frontend updates the dashboard
+\end{verbatim}
+
+\section{Error Handling}
+\begin{itemize}
+    \item If the external API fails, send fallback data and show a message
+    \item If the database has an issue, show a server not responding message
+    \item If a ticker is invalid, show a validation message
+    \item If a request takes too long, handle timeout on frontend
+\end{itemize}
+
+\section{Security Considerations}
+\begin{itemize}
+    \item Passwords are hashed before storage
+    \item API keys are stored securely and hidden from frontend
+    \item All user input is validated
+    \item SQL queries are protected against injection
+\end{itemize}
+
+\section{Glossary}
+\begin{itemize}
+    \item Controller  
+    Handles logic for API requests
+    \item Model 
+    A representation of database data
+    \item CRUD  
+    Create Read Update Delete operations
+    \item Holding  
+    A stock that a user owns
+\end{itemize}
+
+\section{References}
+\begin{itemize}
+    \item React documentation
+    \item Express documentation
+    \item PostgreSQL documentation
+    \item Public stock price API documentation
+\end{itemize}
 
 \end{document}
