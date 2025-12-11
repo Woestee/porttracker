@@ -1,16 +1,240 @@
-
 \documentclass{article}
+\usepackage[hidelinks]{hyperref}
+\usepackage{array}
+
 \title{Design Specification \\ PortTracker}
+\author{CS 3338 -- Final Project Team}
+\date{\today}
+
 \begin{document}
 \maketitle
 
-\section{Pages}
-Login, Dashboard, Add Stock, Portfolio Display.
+\section{Introduction}
 
-\section{Dependencies}
-Flask, requests, SQLite3, Docker.
+This document describes the user interface and behavioral design for the
+PortTracker web application. PortTracker is a Dockerized Flask
+application that allows users to track stock holdings using a local
+SQLite database and live prices fetched from the Alpha Vantage API.
 
-\section{UI}
-Simple clean layout with HTML templates.
+The purpose of this Design Specification is to provide a clear, user
+facing description of each screen, what inputs it accepts, and how the
+system responds. It is intended to complement the SRS and SDD documents.
+
+\section{Overview of Screens and Routes}
+
+PortTracker exposes four main routes:
+
+\begin{center}
+\begin{tabular}{|>{\raggedright}p{2.5cm}|>{\raggedright}p{3cm}|>{\raggedright}p{7cm}|}
+\hline
+\textbf{Route} & \textbf{Screen Name} & \textbf{Purpose} \tabularnewline
+\hline
+\texttt{/} & Home & Landing page with brief description of the app and
+navigation links to the Dashboard and Add Stock pages. \tabularnewline
+\hline
+\texttt{/dashboard} & Dashboard & Shows the list of all stock holdings
+in the portfolio, including ticker, shares, price, value, and total
+portfolio value. Provides Remove actions for each row. \tabularnewline
+\hline
+\texttt{/add-stock} & Add Stock & Form where the user can enter a stock
+ticker and number of shares to add to the portfolio. On submit, the app
+fetches the latest price and stores the holding. \tabularnewline
+\hline
+\texttt{/delete-stock/<id>} & Delete Stock & Route invoked via POST
+when the user clicks the Remove button for a holding on the Dashboard.
+Deletes the specified row and redirects back to the Dashboard. \tabularnewline
+\hline
+\end{tabular}
+\end{center}
+
+Each screen shares a common navigation bar defined in \texttt{base.html}
+with links to Home, Dashboard, and Add Stock.
+
+\section{Common Layout}
+
+All pages extend the \texttt{base.html} template, which includes:
+
+\begin{itemize}
+    \item A top navigation bar with links to:
+    \begin{itemize}
+        \item Home (\texttt{/})
+        \item Dashboard (\texttt{/dashboard})
+        \item Add Stock (\texttt{/add-stock})
+    \end{itemize}
+    \item A horizontal rule separating navigation from page content.
+    \item A flash message area that displays success or error messages.
+    \item A main content block where each page injects its own content.
+\end{itemize}
+
+Styling is provided via \texttt{static/css/style.css}. The design is
+simple and readable, with a focus on clearly displaying tabular data.
+
+\section{Home Screen (/)}
+
+\subsection*{Purpose}
+
+Provide a simple entry point to the application and direct the user to
+the Dashboard or Add Stock screens.
+
+\subsection*{Layout and Content}
+
+\begin{itemize}
+    \item Navigation bar (from \texttt{base.html}).
+    \item Page title: \textbf{PortTracker}.
+    \item Short description of the application.
+    \item Link or button to navigate to the Dashboard.
+\end{itemize}
+
+\subsection*{Behavior}
+
+\begin{itemize}
+    \item No user input is required on this page.
+    \item Clicking the Dashboard link takes the user to \texttt{/dashboard}.
+    \item Clicking Add Stock in the nav bar takes the user to \texttt{/add-stock}.
+\end{itemize}
+
+\section{Dashboard Screen (/dashboard)}
+
+\subsection*{Purpose}
+
+Display the current portfolio, including all holdings stored in the
+SQLite database, and provide the ability to remove holdings.
+
+\subsection*{Layout and Content}
+
+\begin{itemize}
+    \item Navigation bar (from \texttt{base.html}).
+    \item Header: \textbf{Your Portfolio}.
+    \item Paragraph showing total portfolio value:
+    \begin{itemize}
+        \item Example: \texttt{Total value: \$1234.56}
+    \end{itemize}
+    \item Table with the following columns:
+    \begin{itemize}
+        \item Ticker
+        \item Shares
+        \item Price
+        \item Value
+        \item Actions (Remove button)
+    \end{itemize}
+    \item If there are no holdings, display a single row indicating that
+    there are no stocks yet and include a link to Add Stock.
+\end{itemize}
+
+\subsection*{Data Sources}
+
+\begin{itemize}
+    \item The Dashboard calls \texttt{db.get\_portfolio()} to retrieve
+    all holdings from the SQLite \texttt{holdings} table.
+    \item Each holding includes an internal \texttt{id}, \texttt{ticker},
+    \texttt{shares}, \texttt{price}, and computed \texttt{value}.
+\end{itemize}
+
+\subsection*{User Interactions and Behavior}
+
+\begin{itemize}
+    \item When the user navigates to \texttt{/dashboard}, the page
+    always shows the latest state of the database.
+    \item Clicking the Remove button submits a POST request to
+    \texttt{/delete-stock/<id>} for the corresponding holding.
+    \item On successful deletion, the user is redirected back to the
+    Dashboard, the row is removed, and a confirmation flash message is
+    displayed.
+\end{itemize}
+
+\section{Add Stock Screen (/add-stock)}
+
+\subsection*{Purpose}
+
+Allow users to add new stock holdings to the portfolio by entering a
+ticker symbol and number of shares.
+
+\subsection*{Layout and Content}
+
+\begin{itemize}
+    \item Navigation bar (from \texttt{base.html}).
+    \item Header: \textbf{Add Stock}.
+    \item Form fields:
+    \begin{itemize}
+        \item \textbf{Ticker} (text input, required).
+        \item \textbf{Shares} (number input, minimum value 1, required).
+    \end{itemize}
+    \item Submit button labeled \textbf{Add}.
+\end{itemize}
+
+\subsection*{Behavior}
+
+\paragraph{GET Request}
+\begin{itemize}
+    \item On a GET request, the form is displayed with empty fields.
+\end{itemize}
+
+\paragraph{POST Request}
+When the user submits the form:
+
+\begin{enumerate}
+    \item The application reads the \texttt{ticker} and \texttt{shares}
+    values from the form.
+    \item Input validation is performed:
+    \begin{itemize}
+        \item Ticker must be non-empty.
+        \item Shares must be a positive integer.
+    \end{itemize}
+    \item If validation fails, a flash message is shown (e.g., “Ticker and
+    Shares are required” or “Shares must be a positive integer”) and the
+    user is redirected back to the Add Stock page.
+    \item If validation succeeds, the application calls
+    \texttt{alpha.get\_latest\_price(ticker)} to retrieve the current
+    price from Alpha Vantage.
+    \item If the price lookup fails, a flash message is shown (e.g.,
+    “Could not fetch price for TICKER”) and the user is redirected back
+    to the Add Stock page without saving anything.
+    \item If the price lookup succeeds, \texttt{db.add\_holding()} is
+    called to insert the new holding into the SQLite database.
+    \item A success flash message is shown and the user is redirected to
+    the Dashboard.
+\end{enumerate}
+
+\section{Delete Stock Route (/delete-stock/<id>)}
+
+\subsection*{Purpose}
+
+Handle deletion of an existing holding from the portfolio.
+
+\subsection*{Behavior}
+
+\begin{itemize}
+    \item This route is invoked via a POST request from the Remove button
+    on the Dashboard.
+    \item The \texttt{holding\_id} parameter identifies which row to
+    delete.
+    \item The route calls \texttt{db.delete\_holding(holding\_id)}.
+    \item After deletion, it flashes a confirmation message and redirects
+    back to \texttt{/dashboard}.
+    \item If the specified ID does not exist, the current implementation
+    simply performs the delete and redirects; no additional error is
+    shown to the user.
+\end{itemize}
+
+\section{Navigation Flow}
+
+At a high level, the navigation flow is:
+
+\begin{enumerate}
+    \item User lands on the Home page (\texttt{/}) and reads a brief
+    description of PortTracker.
+    \item User clicks \textbf{Dashboard} to see current holdings.
+    \item User clicks \textbf{Add Stock} to add a new position.
+    \item User is redirected back to the Dashboard to see the updated
+    table.
+    \item User may remove a holding by clicking \textbf{Remove}, which
+    posts to \texttt{/delete-stock/<id>} and then returns to the
+    Dashboard.
+\end{enumerate}
+
+This simple flow supports the main use case for the project: tracking a
+set of stock holdings with persistent storage and basic portfolio
+management.
 
 \end{document}
+
