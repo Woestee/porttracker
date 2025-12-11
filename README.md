@@ -18,6 +18,10 @@ The full README / User Manual for this project is written in LaTeX:
 
 Please compile it with `pdflatex` to generate the PDF version, or view the source directly in the repo.
 
+Jira project for this application:
+
+https://calstatela-cs3338-fall-2025.atlassian.net/jira/software/projects/POR/boards/67
+
 ## Run Instructions (Quick View)
 
 ```bash
