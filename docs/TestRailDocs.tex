@@ -1,13 +1,120 @@
-
 \documentclass{article}
-\title{TestRail Documents Summary \\ PortTracker}
+\usepackage[hidelinks]{hyperref}
+\usepackage{array}
+
+\title{TestRail Documentation \\ PortTracker}
+\author{CS 3338 -- Final Project Team}
+\date{\today}
+
 \begin{document}
 \maketitle
 
-\section{Test Cases}
-Login, invalid ticker, add/delete stock.
+\section{Introduction}
 
-\section{Reports}
-Snapshots 2–4 contain TestRail exports.
+This document summarizes the structure and results of the PortTracker
+test suite as executed in TestRail. Two test runs were completed to
+align with the development snapshots defined in the project: Snapshot 2
+(core functionality) and Snapshot 3 (final functionality including API
+pricing and delete operations).
+
+PortTracker is a Flask-based stock portfolio tracker using SQLite for
+storage and Alpha Vantage for live price retrieval.
+
+\section{TestRail Structure}
+
+\begin{itemize}
+    \item \textbf{Project:} PortTracker
+    \item \textbf{Test Suite:} Add Case
+    \item \textbf{Total Test Cases:} 6
+    \item \textbf{Snapshots Tested:}
+    \begin{itemize}
+        \item Snapshot 2 Test Run
+        \item Snapshot 3 Test Run
+    \end{itemize}
+\end{itemize}
+
+The test cases included in the suite are:
+
+\begin{itemize}
+    \item PT-001 Add Valid Stock
+    \item PT-002 Add Stock with Empty Fields
+    \item PT-003 Add Stock with Invalid Shares
+    \item PT-004 Invalid Ticker / API Failure
+    \item PT-005 Dashboard Displays Total Portfolio Value
+    \item PT-006 Delete Stock from Dashboard
+\end{itemize}
+
+\section{Snapshot 2 Test Run}
+
+\subsection*{Included Test Cases}
+The following four cases represent the core application features before
+external pricing and deletion capabilities were added:
+
+\begin{itemize}
+    \item PT-001 Add Valid Stock
+    \item PT-002 Add Stock with Empty Fields
+    \item PT-003 Add Stock with Invalid Shares
+    \item PT-005 Dashboard Displays Total Portfolio Value
+\end{itemize}
+
+\subsection*{Results Summary}
+
+All Snapshot 2 test cases passed successfully using placeholder pricing
+and early database integration.
+
+\begin{itemize}
+    \item \textbf{PT-001: PASS}
+    \item \textbf{PT-002: PASS}
+    \item \textbf{PT-003: PASS}
+    \item \textbf{PT-005: PASS}
+\end{itemize}
+
+\subsection*{Exported Test Run}
+
+The exported PDF containing the detailed pass results is included in:
+
+\begin{center}
+\texttt{docs/test\_results/Snapshot 2 Test Run - TestRail.pdf}
+\end{center}
+
+\section{Snapshot 3 Test Run}
+
+\subsection*{Included Test Cases}
+
+Snapshot 3 includes 2 functional test cases, covering API
+integration and deletion functionality:
+
+\begin{itemize}
+    \item PT-004 Invalid Ticker / API Failure
+    \item PT-006 Delete Stock from Dashboard
+\end{itemize}
+
+\subsection*{Results Summary}
+
+Most tests passed successfully. PT-004 may occasionally be marked
+\textbf{Blocked} due to Alpha Vantage API rate limits, which is a known
+and acceptable constraint for this project.
+
+\begin{itemize}
+    \item \textbf{PT-004: PASS or BLOCKED} (depending on API response)
+    \item \textbf{PT-006: PASS}
+\end{itemize}
+
+\subsection*{Exported Test Run}
+
+The PDF export for Snapshot 3 is located at:
+
+\begin{center}
+\texttt{docs/test\_results/Snapshot 3 Test Run - TestRail.pdf}
+\end{center}
+
+\section{Conclusion}
+
+The executed test runs demonstrate that PortTracker meets its functional
+requirements across both core and extended features. Snapshot 2 validated
+basic add/list behaviors, while Snapshot 3 confirmed full integration
+with the Alpha Vantage API and the portfolio deletion workflow. All test
+results align with project expectations, and the application behaved
+correctly under normal and invalid input scenarios.
 
 \end{document}
