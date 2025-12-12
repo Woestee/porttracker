@@ -1,0 +1,250 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{array}
+
+\title{Software Design Document (SDD) \\
+\large PortTracker}
+\author{
+Dante Fernandez \\
+Marco Lopez \\
+Bryan Valencia \\
+Alexander Woeste
+}
+\date{Snapshot 2}
+
+\begin{document}
+\maketitle
+
+\section*{Version Table}
+\begin{tabular}{|c|c|c|}
+\hline
+Version & Date & Notes \\
+\hline
+1.0 & Snapshot 1 & Original design using React, Node, and PostgreSQL. Nothing was implemented in that version. \\
+\hline
+2.0 & Snapshot 2 & Updated design using Flask and SQLite. Added working portfolio storage, Add Stock page, Dashboard page, and database layer. \\
+\hline
+\end{tabular}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Revision Summary for Version 2.0}
+
+The plan for Snapshot 1 was to build PortTracker using React, Node, and PostgreSQL, but once development started, it became clear that the stack was more complex than what we needed for this class. For Snapshot 2 we moved to a simpler setup using Flask, SQLite, and basic HTML templates. This made it easier to get an actual working version of the app.
+
+Snapshot 2 includes the first running build of PortTracker with features such as adding stocks, displaying a dashboard, storing data in a database, and calculating simple values. Real price fetching and deleting holdings will be added in Snapshot 3.
+
+\section{Introduction}
+
+\subsection{Purpose}
+The purpose of this document is to describe how the Snapshot 2 version of PortTracker is organized and how each part of the app works behind the scenes. It explains the system architecture, the main modules, the database structure, the user interface, and the general workflow of the application.
+
+\subsection{Intended Audience}
+This document is meant for
+\begin{itemize}
+    \item Developers continuing the project in Snapshot 3
+    \item Reviewers who want to understand the changes made for Snapshot 2
+    \item Future contributors who want to learn how the project is structured
+\end{itemize}
+
+\subsection{Overview}
+Snapshot 2 includes
+\begin{itemize}
+    \item A Flask backend
+    \item An SQLite database for storing stock holdings
+    \item An Add Stock page that lets users input data
+    \item A Dashboard page that displays stored holdings
+    \item Basic navigation and reusable page templates
+\end{itemize}
+
+The app does not use any external price API yet.
+
+\section{System Architecture}
+
+\subsection{High Level Architecture}
+PortTracker uses a simple two layer structure in Snapshot 2.
+
+\begin{verbatim}
+[User Browser]
+       |
+       v
+[Flask Web Server]
+       |
+       v
+[SQLite Database]
+\end{verbatim}
+
+\subsection{Architecture Rationale}
+\begin{itemize}
+    \item Flask makes it easy to set up a small web app without extra configuration
+    \item SQLite is lightweight and perfect for local storage
+    \item This simpler stack fits the scope and timeline of the course better
+\end{itemize}
+
+\section{Module Breakdown}
+
+\subsection{Backend Modules}
+
+\subsubsection{app.py}
+This file manages all the routes in the app.
+
+Routes include
+\begin{itemize}
+    \item Slash route for the home page
+    \item Dashboard route to show stored holdings
+    \item Add Stock route to collect new stock information
+\end{itemize}
+
+Main responsibilities
+\begin{itemize}
+    \item Handle form input
+    \item Validate fields
+    \item Send or receive data from the database layer
+\end{itemize}
+
+\subsubsection{db.py}
+This file handles all the interactions with SQLite.
+
+It includes functions for
+\begin{itemize}
+    \item Creating the holdings table if it does not already exist
+    \item Inserting a new stock
+    \item Returning all stored holdings
+\end{itemize}
+
+Table used in Snapshot 2  
+\texttt{holdings}
+\begin{itemize}
+    \item id
+    \item ticker
+    \item shares
+    \item price
+\end{itemize}
+
+\subsection{Frontend and UI Modules}
+
+\subsubsection{base.html}
+This is the page template that all other pages extend.  
+It contains
+\begin{itemize}
+    \item A navigation bar  
+    \item All shared structure for the layout
+\end{itemize}
+
+\subsubsection{index.html}
+This is the home page with links to the Dashboard page and Add Stock page.
+
+\subsubsection{dashboard.html}
+This page displays all portfolio holdings.  
+It shows
+\begin{itemize}
+    \item A table with ticker, shares, price, and total value
+    \item The total value of the entire portfolio
+\end{itemize}
+
+\subsubsection{add\_stock.html}
+This is the form page that collects
+\begin{itemize}
+    \item Ticker symbol
+    \item Number of shares
+\end{itemize}
+
+\section{Database Design}
+
+\subsection{Table Structure}
+
+\subsubsection{holdings}
+\begin{itemize}
+    \item id, an integer that increments automatically
+    \item ticker, the stock symbol
+    \item shares, the amount of shares owned
+    \item price, a placeholder price that will be replaced in Snapshot 3
+\end{itemize}
+
+\subsection{Database Notes}
+\begin{itemize}
+    \item Prices are user provided for now
+    \item Each time a stock is added, a new row is created
+\end{itemize}
+
+\section{API and External Modules}
+Snapshot 2 does not use any external price API.  
+Price fetching will be added in Snapshot 3.
+
+\section{User Interface and Experience}
+
+\subsection{Home Page}
+The home page includes
+\begin{itemize}
+    \item The name of the app
+    \item A short introduction
+    \item Links to other pages
+\end{itemize}
+
+\subsection{Dashboard Page}
+The Dashboard shows
+\begin{itemize}
+    \item Ticker symbol
+    \item Shares owned
+    \item Price stored
+    \item Total calculated value
+\end{itemize}
+
+\subsection{Add Stock Page}
+This page has
+\begin{itemize}
+    \item A text box for entering a ticker
+    \item A text box for entering number of shares
+    \item A submit button
+\end{itemize}
+
+Validations include
+\begin{itemize}
+    \item Both fields are required
+    \item Shares must be greater than zero
+\end{itemize}
+
+\section{Workflow Diagram Description}
+
+\begin{verbatim}
+User submits Add Stock form
+Flask receives form data
+Flask checks if the data is valid
+Flask saves the new entry into SQLite
+User is redirected to the Dashboard
+Dashboard loads all entries from the database
+\end{verbatim}
+
+\section{Error Handling}
+\begin{itemize}
+    \item Missing input fields show a flash message
+    \item If shares are not positive, a flash message appears
+    \item If the database cannot be reached, an error message appears
+\end{itemize}
+
+\section{Security Considerations}
+\begin{itemize}
+    \item There is no login system in Snapshot 2
+    \item No sensitive information is stored
+    \item All form input is validated to prevent invalid data
+\end{itemize}
+
+\section{Glossary}
+\begin{itemize}
+    \item CRUD  
+    A simple set of actions that include create, read, update, and delete
+    \item Template  
+    A shared HTML page structure used by other pages
+\end{itemize}
+
+\section{References}
+\begin{itemize}
+    \item Flask documentation
+    \item SQLite documentation
+\end{itemize}
+
+\end{document}
