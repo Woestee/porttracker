@@ -1,0 +1,196 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Software Requirements Specification (SRS) \\
+\large PortTracker}
+\author{
+Dante Fernandez \\
+Marco Lopez \\
+Bryan Valencia \\
+Alexander Woeste
+}
+\date{Snapshot 3}
+
+\begin{document}
+\maketitle
+
+\section*{Version Table}
+\begin{tabular}{|c|c|c|}
+\hline
+Version & Date & Notes \\
+\hline
+1.0 & Snapshot 1 & First draft that used a different tech stack and did not match the final direction of the project. \\
+\hline
+2.0 & Snapshot 2 & Requirements updated for the switch to Flask and SQLite and added Add Stock, Dashboard, and local data storage. \\
+\hline
+3.0 & Snapshot 3 & Final requirements matching the completed system including real time pricing, Delete Stock, and full workflow behavior. \\
+\hline
+\end{tabular}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Revision Summary for Version 3}
+
+Version 3 updates the requirements to match the finished version of PortTracker. Several new features were added during this stage of development. These include real time price lookups using the Alpha Vantage API, the ability to delete a stock from the portfolio, improved Dashboard calculations, and better error messages for invalid tickers or API issues.
+
+This version represents the complete and working final product.
+
+\section{Introduction}
+
+\subsection{Purpose}
+This document describes the full set of requirements for PortTracker as completed in Snapshot 3. It explains what the app offers, how users interact with it, and what the system must support to run properly.
+
+\subsection{Intended Audience}
+This document is meant for
+\begin{itemize}
+    \item Developers who will maintain or improve the system in the future
+    \item Professors reviewing the final version for grading
+    \item Users or testers who want to understand how the system works
+\end{itemize}
+
+\subsection{Overview}
+PortTracker in its final form allows users to
+\begin{itemize}
+    \item Add stocks by entering a ticker and number of shares
+    \item Fetch real time prices from an external API
+    \item View all their holdings on a dashboard
+    \item Remove any stock they no longer want to track
+\end{itemize}
+
+\section{Product Scope}
+
+PortTracker aims to provide an easy and simple way for users to track basic stock information. The main features include
+\begin{itemize}
+    \item Automatic price fetching for every new stock added
+    \item Local data storage through SQLite
+    \item A clear dashboard with total value calculations
+    \item Simple actions such as adding, viewing, and removing holdings
+\end{itemize}
+
+\section{Overall Description}
+
+\subsection{User Class}
+
+\textbf{General User}
+
+This user can
+\begin{itemize}
+    \item Add stocks to the portfolio
+    \item View all stored holdings on the dashboard
+    \item Remove stocks at any time
+\end{itemize}
+
+\subsection{Operating Environment}
+The system uses
+\begin{itemize}
+    \item A Flask backend to manage all logic and routing
+    \item An SQLite database to store portfolio information
+    \item The Alpha Vantage API to fetch real time prices
+    \item Docker for running the project in a consistent environment
+    \item Any modern browser to access the web pages
+\end{itemize}
+
+\subsection{Dependencies and Assumptions}
+\begin{itemize}
+    \item The user needs an internet connection for price lookups
+    \item The API key must be valid
+    \item The external API may limit the number of requests
+    \item The ticker entered must be a real stock symbol
+\end{itemize}
+
+\section{System Features}
+
+\subsection{Feature 1: Add Stock}
+\begin{itemize}
+    \item User enters a ticker and number of shares
+    \item The system checks that the fields are valid
+    \item The system requests the current price from the API
+    \item If everything is valid the stock is saved and the user is returned to the dashboard
+\end{itemize}
+
+\subsection{Feature 2: Real Time Price Lookup}
+\begin{itemize}
+    \item The system sends a request to Alpha Vantage
+    \item If the price cannot be fetched the system shows a flash error
+\end{itemize}
+
+\subsection{Feature 3: Dashboard Display}
+\begin{itemize}
+    \item Shows ticker, shares, stored price, and calculated value
+    \item Shows total portfolio value
+    \item Shows a message if the user has no holdings
+\end{itemize}
+
+\subsection{Feature 4: Delete Stock}
+\begin{itemize}
+    \item User selects Delete on a row
+    \item The system removes the entry from SQLite
+    \item The user is returned to the dashboard
+\end{itemize}
+
+\section{Error Handling and Edge Cases}
+\begin{itemize}
+    \item Invalid ticker shows a message saying the price could not be fetched
+    \item If the API is unavailable the user sees an error message
+    \item Shares must be greater than zero or the form returns a validation message
+    \item Database errors show a simple fallback message without crashing the app
+\end{itemize}
+
+\section{External Interface Requirements}
+
+\subsection{User Interface}
+The user interacts with
+\begin{itemize}
+    \item A navigation bar at the top
+    \item A dashboard with a table of holdings
+    \item A form to add a stock
+\end{itemize}
+
+\subsection{Software Interfaces}
+The system uses
+\begin{itemize}
+    \item The Alpha Vantage API for live prices
+    \item SQLite for persistent storage
+\end{itemize}
+
+\section{Non Functional Requirements}
+
+\subsection{Performance}
+\begin{itemize}
+    \item Dashboard should load quickly even with many entries
+    \item Price lookups usually take only a few seconds
+\end{itemize}
+
+\subsection{Security}
+\begin{itemize}
+    \item API key is stored safely in an environment variable
+    \item All user input is validated before being stored
+\end{itemize}
+
+\subsection{Usability}
+\begin{itemize}
+    \item Navigation should be easy to understand
+    \item Error and success messages should be clear
+\end{itemize}
+
+\section{Out of Scope}
+
+The following features are not part of Snapshot 3
+\begin{itemize}
+    \item Multi user accounts
+    \item Alerts
+    \item Advanced analytics or charts
+    \item Automatic background price refreshing
+\end{itemize}
+
+\section{References}
+\begin{itemize}
+    \item Alpha Vantage API documentation
+    \item Flask documentation
+    \item SQLite documentation
+\end{itemize}
+
+\end{document}
