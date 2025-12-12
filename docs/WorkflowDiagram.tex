@@ -1,10 +1,150 @@
+\documentclass[tikz,border=10pt]{standalone}
 
-\documentclass{article}
-\title{Workflow Diagram \\ PortTracker}
+\usepackage{tikz}
+\usetikzlibrary{
+    positioning,
+    shapes.multipart,
+    shapes.misc,
+    arrows.meta,
+    fit,
+    matrix
+}
+
+% -----------------------------
+% DARK MODE COLORS
+% -----------------------------
+\definecolor{bg}{RGB}{28,28,30}
+\definecolor{panel}{RGB}{45,45,48}
+\definecolor{text}{RGB}{240,240,240}
+
+\pagecolor{bg}
+\color{text}
+
+% -----------------------------
+% BASIC NODE STYLES
+% -----------------------------
+\tikzset{
+    card/.style={
+        draw,
+        thick,
+        rounded corners=10pt,
+        fill=panel,
+        text=text,
+        align=center,
+        inner sep=10pt,
+        minimum width=8cm
+    },
+    small/.style={
+        draw,
+        thick,
+        rounded corners=6pt,
+        fill=panel!70,
+        text=text,
+        align=center,
+        inner sep=4pt,
+        minimum width=3cm,
+        minimum height=1cm
+    },
+    titlebox/.style={
+        text=text,
+        font=\bfseries\Large
+    },
+    arrow/.style={
+        -Stealth,
+        thick,
+        draw=text
+    }
+}
+
 \begin{document}
-\maketitle
 
-\section{Diagram}
-User → UI → Flask → Alpha Vantage → Flask → SQLite → UI.
+\begin{tikzpicture}[font=\sffamily, node distance=1.4cm]
+
+% ======================================================
+% TOP: CLIENT TIER (Centered)
+% ======================================================
+
+\node[titlebox] (client_title) at (0,6.5) {CLIENT TIER};
+
+\node[card] (client) at (0,5) {
+    \textbf{End User}\\
+    Web Browser (Chrome / Firefox / Safari)\\[4pt]
+    \small Login • Portfolio • Alerts
+};
+
+% ======================================================
+% FRONTEND & BACKEND
+% ======================================================
+
+\node[card, below=1.4cm of client, xshift=-5cm] (frontend) {
+    \textbf{React Frontend}\\
+    Port 3000\\[6pt]
+    \begin{tikzpicture}[node distance=5pt]
+        \matrix[column sep=6pt, row sep=6pt] {
+            \node[small]{Login / Register}; & \node[small]{Dashboard}; \\
+            \node[small]{Holdings Table}; & \node[small]{Add / Edit Holdings}; \\
+            \node[small]{Alerts Module}; & \\ 
+        };
+    \end{tikzpicture}
+};
+
+\node[titlebox, above=0.3cm of frontend] {PRESENTATION LAYER};
+
+\node[card, below=1.4cm of client, xshift=5cm] (backend) {
+    \textbf{Express Backend}\\
+    Node.js + Express — Port 5000\\[6pt]
+    Auth • Portfolio • Price Service • Alerts\\
+    Database Controller
+};
+
+\node[titlebox, above=0.3cm of backend] {APPLICATION LAYER};
+
+\draw[arrow] (frontend) -- (backend);
+
+% ======================================================
+% DATA LAYER
+% ======================================================
+
+\node[card, below=1.3cm of frontend] (postgres) {
+    \textbf{PostgreSQL}\\
+    Port 5432\\[4pt]
+    Users • Holdings • Alerts Tables
+};
+
+\node[titlebox, above=0.3cm of postgres] {DATA PERSISTENCE LAYER};
+
+\node[card, below=1.3cm of backend] (sessions) {
+    \textbf{Sessions Store}\\
+    Express Sessions (User Auth State)
+};
+
+\draw[arrow] (backend.south) -- (sessions.north);
+\draw[arrow] (backend.south west) -- (postgres.north);
+
+% ======================================================
+% EXTERNAL SERVICES
+% ======================================================
+
+\node[card, below=1.4cm of postgres, minimum width=16cm] (apis) {
+    \textbf{Stock Market APIs}\\
+    Yahoo Finance • Alpha Vantage\\
+    Real-Time Price Fetching • Ticker Validation
+};
+
+\node[titlebox, above=0.3cm of apis] {EXTERNAL SERVICES};
+
+\draw[arrow] (apis.north) -- (backend.south);
+
+% ======================================================
+% ACCESS CONTROL
+% ======================================================
+
+\node[card, below=1.4cm of apis, minimum width=16cm] (access) {
+    \textbf{ACCESS CONTROL}\\[4pt]
+    React: Authenticated UI • Express: Sessions + CRUD\\
+    PostgreSQL: User \& Portfolio Storage • APIs: Read-Only Market Data
+};
+
+\end{tikzpicture}
 
 \end{document}
